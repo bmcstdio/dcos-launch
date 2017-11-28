@@ -121,9 +121,10 @@ def run_acs_engine(acs_engine_url: str, acs_engine_template):
     cmd = [acs_engine_bin_path, 'generate', acs_template_path]
     subprocess.check_call(cmd, cwd=tmpdir)
 
-    with open(os.path.join(tmpdir, '_output/dcos-mstr/azuredeploy.json'), 'r') as f:
+    cluster_name = acs_engine_template['properties']['masterProfile']['dnsPrefix']
+    with open(os.path.join(tmpdir, '_output/{}/azuredeploy.json'.format(cluster_name)), 'r') as f:
         arm_template = json.load(f)
-    with open(os.path.join(tmpdir, '_output/dcos-mstr/azuredeploy.parameters.json'), 'r') as f:
+    with open(os.path.join(tmpdir, '_output/{}/azuredeploy.parameters.json'.format(cluster_name)), 'r') as f:
         arm_template_parameters_raw = json.load(f)
     arm_template_parameters = dict()
     for k, v in arm_template_parameters_raw['parameters'].items():
@@ -175,7 +176,7 @@ class ACSEngineLauncher(dcos_launch.util.AbstractLauncher):
             self.config['linux_admin_user'])
         arm_template, self.config['template_parameters'] = run_acs_engine(self.config['acs_engine_tarball_url'], acs_engine_template)  # noqa
         # FIXME: can we not pass this option into ACS-engine?
-        self.config['template_parameters']['oauthEnabled'] = "true"
+        # self.config['template_parameters']['oauthEnabled'] = "true"
         self.azure_wrapper.deploy_template_to_new_resource_group(
             self.config.get('template_url'),
             self.config['deployment_name'],

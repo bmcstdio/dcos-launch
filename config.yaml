@@ -1,6 +1,6 @@
 ---
 launch_config_version: 1
-deployment_name: acs-engine-test-mesosphere-abc
+deployment_name: acs-engine-test-mesosphere-abc-123
 provider: acs-engine
 key_helper: true
 num_masters: 1
@@ -10,4 +10,4 @@ num_linux_public_agents: 1
 num_linux_private_agents: 1
 tags:
     expiration: 4h
-    owner: '@mellenburg'
+    owner: '@jeremy'

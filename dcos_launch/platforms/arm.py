@@ -140,10 +140,6 @@ class AzureWrapper:
         log.debug('Constructing DeploymentProperties from user parameters: {}'.format(parameters))
         template_parameters = {}
         for k, v in template['parameters'].items():
-            i = template['parameters'][k]
-            if 'defaultValue' not in i:
-                print(k)
-                print(i)
             if k in user_parameters:
                 # All templates parameters are required to have a type field.
                 # Azure requires that parameters be provided as {key: {'value': value}}.
