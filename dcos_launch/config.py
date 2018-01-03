@@ -301,11 +301,11 @@ AWS_ONPREM_SCHEMA = {
 
 def get_platform_dependent_acs_engine_url():
     if sys.platform in ['linux', 'linux2']:
-        return 'https://github.com/Azure/acs-engine/releases/download/v0.8.0/acs-engine-v0.8.0-linux-amd64.tar.gz'  # noqa
+        return 'https://github.com/Azure/acs-engine/releases/download/v0.11.0/acs-engine-v0.11.0-linux-amd64.tar.gz'  # noqa
     elif sys.platform == 'darwin':
-        return 'https://github.com/Azure/acs-engine/releases/download/v0.8.0/acs-engine-v0.8.0-darwin-amd64.tar.gz'  # noqa
+        return 'https://github.com/Azure/acs-engine/releases/download/v0.11.0/acs-engine-v0.11.0-darwin-amd64.tar.gz'  # noqa
     elif sys.platform == 'win32':
-        return 'https://github.com/Azure/acs-engine/releases/download/v0.8.0/acs-engine-v0.8.0-windows-amd64.tar.gz'  # noqa
+        return 'https://github.com/Azure/acs-engine/releases/download/v0.11.0/acs-engine-v0.11.0-windows-amd64.tar.gz'  # noqa
     else:
         raise Exception('No ACS-Engine distribution for {}'.format(sys.platform))
 
@@ -366,7 +366,10 @@ ACS_ENGINE_SCHEMA = {
         'type': 'string',
         'default': 'azureuser'},
     'template_parameters': {
-        'type': 'dict'}
+        'type': 'dict'},
+    'dcos_linux_bootstrap_url': {
+        'type': 'string',
+        'required': False}
 }
 
 

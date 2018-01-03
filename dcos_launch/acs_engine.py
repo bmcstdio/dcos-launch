@@ -31,9 +31,10 @@ def generate_acs_engine_template(
         windows_admin_user: str='azureuser',
         windows_admin_password: str='replacepassword123',
         linux_admin_user: str='azureuser',
+        dcos_linux_bootstrap_url: str=None
         ):
     unique_id = str(uuid.uuid4())[:8] + 'dcos'
-    return {
+    template = {
         "apiVersion": "vlabs",
         "properties": {
             "orchestratorProfile": {
@@ -96,6 +97,9 @@ def generate_acs_engine_template(
             }
         }
     }
+    if dcos_linux_bootstrap_url is not None:
+        template['properties']['dcosBootstrapURL'] = dcos_linux_bootstrap_url
+    return template
 
 
 def run_acs_engine(acs_engine_url: str, acs_engine_template):
@@ -173,7 +177,8 @@ class ACSEngineLauncher(dcos_launch.util.AbstractLauncher):
             self.config['linux_public_vm_size'],
             self.config['windows_admin_user'],
             self.config['windows_admin_password'],
-            self.config['linux_admin_user'])
+            self.config['linux_admin_user'],
+            self.config.get('dcos_linux_bootstrap_url'))
         arm_template, self.config['template_parameters'] = run_acs_engine(self.config['acs_engine_tarball_url'], acs_engine_template)  # noqa
         # FIXME: can we not pass this option into ACS-engine?
         # self.config['template_parameters']['oauthEnabled'] = "true"
