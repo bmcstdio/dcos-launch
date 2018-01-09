@@ -18,21 +18,23 @@ log = logging.getLogger(__name__)
 
 def generate_acs_engine_template(
         linux_ssh_public_key: str,
-        num_masters: int=1,
-        master_vm_size: str='Standard_D2_V2',
-        num_windows_private_agents: int=1,
-        windows_private_vm_size: str='Standard_D2_V2',
-        num_windows_public_agents: int=1,
-        windows_public_vm_size: str='Standard_D2_V2',
-        num_linux_private_agents: int=1,
-        linux_private_vm_size: str='Standard_D2_V2',
-        num_linux_public_agents: int=1,
-        linux_public_vm_size: str='Standard_D2_V2',
-        windows_admin_user: str='azureuser',
-        windows_admin_password: str='replacepassword123',
-        linux_admin_user: str='azureuser',
+        num_masters: int,
+        master_vm_size: str,
+        num_windows_private_agents: int,
+        windows_private_vm_size: str,
+        num_windows_public_agents: int,
+        windows_public_vm_size: str,
+        num_linux_private_agents: int,
+        linux_private_vm_size: str,
+        num_linux_public_agents: int,
+        linux_public_vm_size: str,
+        windows_admin_user: str,
+        windows_admin_password: str,
+        linux_admin_user: str,
         dcos_linux_bootstrap_url: str=None
         ):
+    """ Generates the template provided to ACS-engine
+    """
     unique_id = str(uuid.uuid4())[:8] + 'dcos'
     template = {
         "apiVersion": "vlabs",
@@ -196,8 +198,14 @@ class ACSEngineLauncher(dcos_launch.util.AbstractLauncher):
     def describe(self):
         return {
             'masters': dcos_launch.util.convert_host_list(self.resource_group.get_master_ips()),
-            'private_agents': dcos_launch.util.convert_host_list(self.resource_group.get_private_agent_ips()),
-            'public_agents': dcos_launch.util.convert_host_list(self.resource_group.get_public_agent_ips()),
+            'linux_private_agents': dcos_launch.util.convert_host_list(
+                self.resource_group.get_linux_private_agent_ips()),
+            'linux_public_agents': dcos_launch.util.convert_host_list(
+                self.resource_group.get_linux_public_agent_ips()),
+            'windows_private_agents': dcos_launch.util.convert_host_list(
+                self.resource_group.get_windows_private_agent_ips()),
+            'windows_public_agents': dcos_launch.util.convert_host_list(
+                self.resource_group.get_windows_public_agent_ips()),
             'master_fqdn': self.resource_group.public_master_lb_fqdn,
             'public_agent_fqdn': self.resource_group.public_agent_lb_fqdn}
 
@@ -207,6 +215,7 @@ class ACSEngineLauncher(dcos_launch.util.AbstractLauncher):
     @property
     def resource_group(self):
         try:
-            return dcos_launch.platforms.arm.DcosAzureResourceGroup(self.config['deployment_name'], self.azure_wrapper)
+            return dcos_launch.platforms.arm.HybridDcosAzureResourceGroup(
+                self.config['deployment_name'], self.azure_wrapper)
         except Exception as ex:
             raise dcos_launch.util.LauncherError('GroupNotFound', None) from ex
