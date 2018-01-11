@@ -69,11 +69,7 @@ def generate_acs_engine_template(
                     "vmSize": linux_public_vm_size,
                     "osType": "linux",
                     "dnsPrefix": "linpub" + unique_id,
-                    "ports": [
-                        80,
-                        443,
-                        22
-                    ]
+                    "ports": [80, 443, 22]
                 },
                 {
                     "name": "linpri",
@@ -198,16 +194,16 @@ class ACSEngineLauncher(dcos_launch.util.AbstractLauncher):
     def describe(self):
         return {
             'masters': dcos_launch.util.convert_host_list(self.resource_group.get_master_ips()),
-            'linux_private_agents': dcos_launch.util.convert_host_list(
+            'private_agents': dcos_launch.util.convert_host_list(
                 self.resource_group.get_linux_private_agent_ips()),
-            'linux_public_agents': dcos_launch.util.convert_host_list(
+            'public_agents': dcos_launch.util.convert_host_list(
                 self.resource_group.get_linux_public_agent_ips()),
             'windows_private_agents': dcos_launch.util.convert_host_list(
                 self.resource_group.get_windows_private_agent_ips()),
             'windows_public_agents': dcos_launch.util.convert_host_list(
                 self.resource_group.get_windows_public_agent_ips()),
             'master_fqdn': self.resource_group.public_master_lb_fqdn,
-            'public_agent_fqdn': self.resource_group.public_agent_lb_fqdn}
+            'public_agent_fqdn': self.resource_group.linux_public_agent_lb_fqdn}
 
     def delete(self):
         self.resource_group.delete()

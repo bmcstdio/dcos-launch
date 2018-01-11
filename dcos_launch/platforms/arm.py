@@ -55,12 +55,14 @@ def check_array(arr):
     return arr
 
 
-def nic_to_host(nic):
+def nic_to_host(nic, public_ip=None):
     assert len(nic.ip_configurations) == 1
     ip_config = nic.ip_configurations[0]
-    if ip_config.public_ip_address is None:
+    if ip_config.public_ip_address is None and public_ip is None:
         return Host(ip_config.private_ip_address, None)
-    return Host(ip_config.private_ip_address, ip_config.public_ip_address.ip_address)
+    if public_ip is None:
+        return Host(ip_config.private_ip_address, ip_config.public_ip_address.ip_address)
+    return Host(ip_config.private_ip_address, public_ip)
 
 
 class AzureWrapper:
@@ -312,39 +314,25 @@ class DcosAzureResourceGroup:
 
 
 class HybridDcosAzureResourceGroup(DcosAzureResourceGroup):
-    @property
-    def master_nics(self):
-        """ The only instances of networkInterface Resources are for masters
-        """
-        for resource in self.list_resources("resourceType eq 'Microsoft.Network/networkInterfaces'"):
-            assert 'master' in resource.name, 'Expected to only find master NICs, not: {}'.format(resource.name)
-            yield self.azure_wrapper.nmc.network_interfaces.get(self.group_name, resource.name)
-
     def get_master_ips(self):
-        """ Traffic from abroad is routed to a master wth the public master
-        loadbalancer FQDN and the VM index plus 2200 (so the first master will be at 2200)
-        """
         public_lb_ip = self.public_master_lb_fqdn
-        return [Host(nic_to_host(nic).private_ip, '{}:{}'.format(public_lb_ip, 2200 + int(nic.name[-1])))
-                for nic in self.master_nics]
+        return [nic_to_host(nic, public_lb_ip) for nic in self.master_nics]
 
     def get_linux_private_agent_ips(self):
         return [nic_to_host(nic) for nic in self.get_scale_set_nics('linpri')]
 
     def get_linux_public_agent_ips(self):
-        """ public traffic is routed to public agents via a specific load balancer """
-        public_lb_ip = self.linux_public_agent_lb_fqdn
-        return [Host(nic_to_host(nic).private_ip, public_lb_ip)
+        return [nic_to_host(nic, self.linux_public_agent_lb_fqdn)
                 for nic in self.get_scale_set_nics('linpub')]
 
-    def get_windows_private_agent_ips(self):
-        return [nic_to_host(nic) for nic in self.get_scale_set_nics('40448acs901-vmss')]
-
     def get_windows_public_agent_ips(self):
-        """ public traffic is routed to public agents via a specific load balancer """
-        public_lb_ip = self.windows_public_agent_lb_fqdn
-        return [Host(nic_to_host(nic).private_ip, public_lb_ip)
-                for nic in self.get_scale_set_nics('40448acs900-vmss')]
+        # this VMSS name is derived from this being the 0-th element in the VMSS list
+        return [nic_to_host(nic, self.windows_public_agent_lb_fqdn)
+                for nic in self.get_scale_set_nics('acs900-vmss')]
+
+    def get_windows_private_agent_ips(self):
+        # this VMSS name is derived from this being the 1-th element in the VMSS list
+        return [nic_to_host(nic) for nic in self.get_scale_set_nics('acs901-vmss')]
 
     @property
     def linux_public_agent_lb_fqdn(self):

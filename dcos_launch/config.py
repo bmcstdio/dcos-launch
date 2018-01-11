@@ -369,7 +369,12 @@ ACS_ENGINE_SCHEMA = {
         'type': 'dict'},
     'dcos_linux_bootstrap_url': {
         'type': 'string',
-        'required': False}
+        'required': False},
+    'ssh_user': {
+        'type': 'string',
+        'required': True,
+        'readonly': True,
+        'default_setter': lambda doc: doc['linux_admin_user']}
 }
 
 

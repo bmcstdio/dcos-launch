@@ -1,6 +1,6 @@
 ---
 launch_config_version: 1
-deployment_name: acs-test-test-123
+deployment_name: acs-test-test-1234
 provider: acs-engine
 key_helper: true
 num_masters: 1
