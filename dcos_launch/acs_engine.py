@@ -75,8 +75,7 @@ def generate_acs_engine_template(
                     "name": "linpri",
                     "count": num_linux_private_agents,
                     "vmSize": linux_private_vm_size,
-                    "osType": "linux",
-                    "dnsPrefix": "linpri" + unique_id
+                    "osType": "linux"
                 }
             ],
             "windowsProfile": {
